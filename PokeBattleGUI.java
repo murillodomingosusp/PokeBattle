@@ -42,14 +42,14 @@ public class PokeBattleGUI extends JFrame {
 
     private List<Pokemon> todosPokemons = Arrays.asList(
             new Fire("Charmander", 100, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
-            new Fire("Vulpix", 90, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
-            new Fire("Flareon", 110, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
+            new Fire("Cyndaquil", 90, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
+            new Fire("Moltres", 110, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
             new Water("Squirtle", 100, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
-            new Water("Psyduck", 90, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
+            new Water("Mudkip", 90, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
             new Water("Vaporeon", 120, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
             new Grass("Bulbasaur", 100, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100))),
-            new Grass("Oddish", 90, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100))),
-            new Grass("Leafeon", 110, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100)))
+            new Grass("Chikorita", 90, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100))),
+            new Grass("Treecko", 110, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100)))
     );
 
     public PokeBattleGUI() {
@@ -168,11 +168,13 @@ public class PokeBattleGUI extends JFrame {
         String backgroundPath = "/gifs/background/" + randomNumber + ".png";
 
         // Adicionando o JLabel para o GIF na parte superior direita
-        topRightLabel = createGifLabel("/gifs/fogo/moltre_frente.gif", 500, 200, 150, 150);
+        topRightLabel = createGifLabel("/gifs/moltres_frente.gif", 500, 200, 150, 150);
         battlePanel.add(topRightLabel);
 
+
+
         // Adicionando o JLabel para o GIF na parte inferior esquerda
-        bottomLeftLabel = createGifLabel("/gifs/grama/bulbasaur_costa.gif", 100, 400, 150, 150);
+        bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 100, 400, 150, 150);
         battlePanel.add(bottomLeftLabel);
 
         // Adicionando o JLabel para o GIF de fundo
@@ -247,7 +249,27 @@ public class PokeBattleGUI extends JFrame {
     private void checkReady() {
         if (player1Ready && player2Ready) {
             iniciarBatalha();
+            updateGifLabels();
             cardLayout.show(mainPanel, "Battle");
+        }
+    }
+
+    private void updateGifLabels() {
+        Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
+
+        topRightLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador2.getNome() + "_frente.gif"), 150, 150));
+        bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador1.getNome() + "_costa.gif"), 150, 150));
+    }
+
+    // Método auxiliar para redimensionar um ImageIcon
+    private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
+        if (icon != null) {
+            Image img = icon.getImage();
+            Image newImg = img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+            return new ImageIcon(newImg);
+        } else {
+            return null;
         }
     }
 

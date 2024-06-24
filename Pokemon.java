@@ -5,7 +5,9 @@ public interface Pokemon {
     int getHp();
     void setHp(int hp);
     int getAtaque();
-    int getDefesa();
     List<Ataque> getAtaques();
     void atacar(Pokemon alvo, Ataque ataque);
+    String getDescricao();
+    String getDesvantagens();
+    String getVantagens();
 }

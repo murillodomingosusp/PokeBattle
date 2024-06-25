@@ -4,35 +4,39 @@ public class Battle {
     private Pokemon pokemonJogador1;
     private Pokemon pokemonJogador2;
     private Random random;
+    private boolean isJogador1Turno;
 
     public Battle(Pokemon pokemonJogador1, Pokemon pokemonJogador2) {
         this.pokemonJogador1 = pokemonJogador1;
         this.pokemonJogador2 = pokemonJogador2;
         this.random = new Random();
+        this.isJogador1Turno = true; // Jogador 1 começa
     }
 
     public void iniciar() {
         System.out.println("A batalha começou!");
+        System.out.println("\nBatalha: " + pokemonJogador1.getNome() + " vs " + pokemonJogador2.getNome());
+    }
 
-        Pokemon p1 = pokemonJogador1;
-        Pokemon p2 = pokemonJogador2;
-        System.out.println("\nBatalha: " + p1.getNome() + " vs " + p2.getNome());
-
-        while (p1.getHp() > 0 && p2.getHp() > 0) {
-            Ataque[] ataquesP1 = p1.getAtaques().toArray(new Ataque[0]);
-            turno(p1, p2, ataquesP1[random.nextInt(ataquesP1.length)]);
-
-            if (p2.getHp() > 0) {
-                Ataque[] ataquesP2 = p2.getAtaques().toArray(new Ataque[0]);
-                turno(p2, p1, ataquesP2[random.nextInt(ataquesP2.length)]);
+    public void realizarTurno(Ataque ataqueSelecionado) {
+        if (isJogador1Turno) {
+            turno(pokemonJogador1, pokemonJogador2, ataqueSelecionado);
+            if (pokemonJogador2.getHp() > 0) {
+                isJogador1Turno = false; // Alterna o turno para Jogador 2
+            }
+        } else {
+            turno(pokemonJogador2, pokemonJogador1, ataqueSelecionado);
+            if (pokemonJogador1.getHp() > 0) {
+                isJogador1Turno = true; // Alterna o turno para Jogador 1
             }
         }
 
-        if (p1.getHp() <= 0) {
-            System.out.println(p1.getNome() + " foi derrotado!");
+        if (pokemonJogador1.getHp() <= 0) {
+            System.out.println(pokemonJogador1.getNome() + " foi derrotado!");
+
         }
-        if (p2.getHp() <= 0) {
-            System.out.println(p2.getNome() + " foi derrotado!");
+        if (pokemonJogador2.getHp() <= 0) {
+            System.out.println(pokemonJogador2.getNome() + " foi derrotado!");
         }
     }
 

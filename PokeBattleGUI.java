@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.List;
 
 public class PokeBattleGUI extends JFrame {
+    private boolean isJogador1Turno;
     private CardLayout cardLayout;
     private JPanel mainPanel;
 
@@ -38,7 +39,7 @@ public class PokeBattleGUI extends JFrame {
     private JLabel bottomLeftLabel;
 
     private Map<JButton, Pokemon> buttonPokemonMap = new HashMap<>();
-
+    private Battle battle;
 
     private List<Pokemon> todosPokemons = Arrays.asList(
             new Fire("Charmander", 100, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
@@ -53,6 +54,8 @@ public class PokeBattleGUI extends JFrame {
     );
 
     public PokeBattleGUI() {
+        this.isJogador1Turno = true; // Jogador 1 começa
+
         setTitle("PokeBattle");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -160,7 +163,7 @@ public class PokeBattleGUI extends JFrame {
     }
 
     private void createBattlePanel() {
-        battlePanel = new JPanel(null); // Layout absoluto para posicionar os JLabels
+        battlePanel = new JPanel(new BorderLayout()); // Layout absoluto para posicionar os JLabels
 
         // Escolhe aleatoriamente um número entre 1 e 9 para o nome do arquivo
         Random random = new Random();
@@ -174,7 +177,7 @@ public class PokeBattleGUI extends JFrame {
 
 
         // Adicionando o JLabel para o GIF na parte inferior esquerda
-        bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 100, 400, 150, 150);
+        bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 125, 450, 150, 150);
         battlePanel.add(bottomLeftLabel);
 
         // Adicionando o JLabel para o GIF de fundo
@@ -189,8 +192,8 @@ public class PokeBattleGUI extends JFrame {
         battlePanel.add(centralPanel, BorderLayout.CENTER);
 
         bottomPanel = new JPanel(new BorderLayout());
-        leftPanel = new JPanel(new GridLayout(3, 1));
-        rightPanel = new JPanel(new GridLayout(4, 1));
+        leftPanel = new JPanel(new GridLayout(2, 2));
+        rightPanel = new JPanel(new GridLayout(2, 2));
         attackButton = new JButton("Attack");
         itemsButton = new JButton("Items");
         pokemonButton = new JButton("Pokemon");
@@ -228,7 +231,7 @@ public class PokeBattleGUI extends JFrame {
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "Player X wins! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+                int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "The Battle was aborted! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     player1Ready = false;
                     player2Ready = false;
@@ -258,8 +261,8 @@ public class PokeBattleGUI extends JFrame {
         Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
         Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
 
-        topRightLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador2.getNome() + "_frente.gif"), 150, 150));
-        bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador1.getNome() + "_costa.gif"), 150, 150));
+        topRightLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador2.getNome() + "_frente.gif"), 100, 100));
+        bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador1.getNome() + "_costa.gif"), 100, 100));
     }
 
     // Método auxiliar para redimensionar um ImageIcon
@@ -274,22 +277,63 @@ public class PokeBattleGUI extends JFrame {
     }
 
     private void updateLeftPanel(String type) {
+        Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
+
         leftPanel.removeAll();
-        if (type.equals("Attack")) {
-            for (int i = 0; i < 3; i++) {
-                leftPanel.add(new JButton("Attack " + (i + 1)));
+        switch (type) {
+            case "Attack" -> {
+                Pokemon currentPokemon = isJogador1Turno ? pokemonJogador1 : pokemonJogador2;
+                Pokemon opponentPokemon = isJogador1Turno ? pokemonJogador2 : pokemonJogador1;
+                for (int i = 0; i < currentPokemon.getAtaques().size(); i++) {
+                    JButton attackButton = getAttackButton(currentPokemon, i, opponentPokemon);
+                    leftPanel.add(attackButton);
+                }
             }
-        } else if (type.equals("Items")) {
-            for (int i = 0; i < 3; i++) {
-                leftPanel.add(new JButton("Item " + (i + 1)));
+            case "Items" -> {
+                for (int i = 0; i < 3; i++) {
+                    leftPanel.add(new JButton("Item " + (i + 1)));
+                }
             }
-        } else if (type.equals("Pokemon")) {
-            for (int i = 0; i < 3; i++) {
-                leftPanel.add(new JButton("Pokemon " + (i + 1)));
+            case "Pokemon" -> {
+                for (int i = 0; i < 3; i++) {
+                    leftPanel.add(new JButton("Pokemon " + (i + 1)));
+                }
             }
         }
         leftPanel.revalidate();
         leftPanel.repaint();
+    }
+
+    private JButton getAttackButton(Pokemon currentPokemon, int i, Pokemon opponentPokemon) {
+        JButton attackButton = new JButton(currentPokemon.getAtaques().get(i).getNome());
+        Ataque ataque = currentPokemon.getAtaques().get(i);
+        attackButton.addActionListener(e -> {
+            battle.realizarTurno(ataque);
+            if (opponentPokemon.getHp() <= 0) {
+                int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "The battle has ended! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    resetGame();
+                } else {
+                    System.exit(0);
+                }
+            } else {
+                isJogador1Turno = !isJogador1Turno;
+            }
+        });
+        return attackButton;
+    }
+
+    private void resetGame() {
+        player1Ready = false;
+        player2Ready = false;
+        player1Selected = false;
+        player2Selected = false;
+        readyButton1.setEnabled(true);
+        readyButton2.setEnabled(true);
+        highlightSelectedButton(player1Buttons, -1);
+        highlightSelectedButton(player2Buttons, -1);
+        cardLayout.show(mainPanel, "Selection");
     }
 
     // Método para criar um JLabel com um GIF específico em uma posição e tamanho
@@ -339,7 +383,7 @@ public class PokeBattleGUI extends JFrame {
         Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
         Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
 
-        Battle batalha = new Battle(pokemonJogador1, pokemonJogador2);
-        batalha.iniciar();
+        battle = new Battle(pokemonJogador1, pokemonJogador2);
+        battle.iniciar();
     }
 }

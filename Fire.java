@@ -1,21 +1,34 @@
 import java.util.List;
 
+/**
+ * Represents a Fire-type Pokemon with attributes such as name, HP, attack power,
+ * and a list of attacks. Provides methods to get and set the Pokemon's
+ * attributes and perform attacks on another Pokemon.
+ */
 public class Fire implements Pokemon {
-    private String nome;
+    private String name;
     private int hp;
-    private int ataque;
-    private List<Ataque> ataques;
+    private int attack;
+    private List<Attack> attacks;
 
-    public Fire(String nome, int hp, int ataque, List<Ataque> ataques) {
-        this.nome = nome;
+    /**
+     * Constructs a Fire-type Pokemon with the specified name, HP, attack power, and list of attacks.
+     *
+     * @param name The name of the Pokemon.
+     * @param hp The HP (Hit Points) of the Pokemon.
+     * @param attack The attack power of the Pokemon.
+     * @param attacks A list of attacks that the Pokemon can perform.
+     */
+    public Fire(String name, int hp, int attack, List<Attack> attacks) {
+        this.name = name;
         this.hp = hp;
-        this.ataque = ataque;
-        this.ataques = ataques;
+        this.attack = attack;
+        this.attacks = attacks;
     }
 
     @Override
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -29,49 +42,59 @@ public class Fire implements Pokemon {
     }
 
     @Override
-    public int getAtaque() {
-        return ataque;
+    public int getAttack() {
+        return attack;
     }
 
     @Override
-    public List<Ataque> getAtaques() {
-        return ataques;
+    public List<Attack> getAttacks() {
+        return attacks;
     }
 
     @Override
-    public void atacar(Pokemon alvo, Ataque ataque) {
-        int dano = calcularDano(this, alvo, ataque);
-        alvo.setHp(alvo.getHp() - dano);
-        System.out.println(this.getNome() + " usa " + ataque.getNome() + " em " + alvo.getNome() + " causando " + dano + " de dano.");
+    public void attack(Pokemon target, Attack attack) {
+        int damage = calculateDamage(this, target, attack);
+        target.setHp(target.getHp() - damage);
+        System.out.println(this.getName() + " uses " + attack.getName() + " on " + target.getName() + " causing " + damage + " damage.");
     }
 
-    private float coeficienteVantagem(Pokemon alvo) {
-        // Se o alvo for do tipo Grass, o dano é dobrado
-        if (alvo.getDesvantagens().equals(this.getVantagens())) {
-            return 1.5f;
-        // Se o alvo for do tipo Water, o dano é reduzido pela metade
-        } else if (alvo.getVantagens().equals(this.getDesvantagens())) {
-            return 0.8f;
-        }
+    /**
+     * Calculates the advantage coefficient based on the target's type.
+     *
+     * @param target The target Pokemon.
+     * @return The advantage coefficient.
+     */
+    private float advantageCoefficient(Pokemon target) {
+        // If the target is of type Grass, the damage is increased by 20%
+        if (target.getAdvantages().equals(this.getDisadvantages()))
+            return 1.2f;
         return 1.0f;
     }
 
-    private int calcularDano(Pokemon atacante, Pokemon alvo, Ataque ataque) {
-        return (int) (atacante.getAtaque() + ataque.getPoder() * coeficienteVantagem(alvo));
+    /**
+     * Calculates the damage dealt by the attacker to the target using the specified attack.
+     *
+     * @param attacker The attacking Pokemon.
+     * @param target The target Pokemon.
+     * @param attack The attack used.
+     * @return The calculated damage.
+     */
+    private int calculateDamage(Pokemon attacker, Pokemon target, Attack attack) {
+        return (int) (attacker.getAttack() + attack.getPower() * advantageCoefficient(target));
     }
 
     @Override
-    public String getDescricao() {
-        return "Pokémon do tipo Fogo são conhecidos por sua força e habilidade, destroem pokemons do tipo grama mas tem desvantagens contra água.";
+    public String getDescription() {
+        return "Fire-type Pokémon are known for their strength and skill, they destroy grass-type Pokémon but have disadvantages against water.";
     }
 
     @Override
-    public String getVantagens() {
+    public String getAdvantages() {
         return "Grass";
     }
 
     @Override
-    public String getDesvantagens() {
+    public String getDisadvantages() {
         return "Water";
     }
 }

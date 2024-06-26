@@ -1,53 +1,77 @@
 import java.util.Random;
 
+/**
+ * Represents a battle between two Pokemon. Manages the turn-based combat
+ * and handles the actions performed during each turn.
+ */
 public class Battle {
-    private Pokemon pokemonJogador1;
-    private Pokemon pokemonJogador2;
+    private Pokemon player1Pokemon;
+    private Pokemon player2Pokemon;
     private Random random;
-    private boolean isJogador1Turno;
+    private boolean isPlayer1Turn;
 
-    public Battle(Pokemon pokemonJogador1, Pokemon pokemonJogador2) {
-        this.pokemonJogador1 = pokemonJogador1;
-        this.pokemonJogador2 = pokemonJogador2;
+    /**
+     * Constructs a battle with the specified Pokemon for each player.
+     *
+     * @param player1Pokemon The Pokemon for player 1.
+     * @param player2Pokemon The Pokemon for player 2.
+     */
+    public Battle(Pokemon player1Pokemon, Pokemon player2Pokemon) {
+        this.player1Pokemon = player1Pokemon;
+        this.player2Pokemon = player2Pokemon;
         this.random = new Random();
-        this.isJogador1Turno = true; // Jogador 1 começa
+        this.isPlayer1Turn = true; // Player 1 starts
     }
 
-    public void iniciar() {
-        System.out.println("A batalha começou!");
-        System.out.println("\nBatalha: " + pokemonJogador1.getNome() + " vs " + pokemonJogador2.getNome());
+    /**
+     * Starts the battle and announces the participating Pokemon.
+     */
+    public void start() {
+        System.out.println("The battle has begun!");
+        System.out.println("\nBattle: " + player1Pokemon.getName() + " vs " + player2Pokemon.getName());
     }
 
-    public void realizarTurno(Ataque ataqueSelecionado) {
-        if (isJogador1Turno) {
-            turno(pokemonJogador1, pokemonJogador2, ataqueSelecionado);
-            if (pokemonJogador2.getHp() > 0) {
-                isJogador1Turno = false; // Alterna o turno para Jogador 2
+    /**
+     * Performs a turn using the selected attack.
+     *
+     * @param selectedAttack The attack selected for this turn.
+     */
+    public void performTurn(Attack selectedAttack) {
+        if (isPlayer1Turn) {
+            turn(player1Pokemon, player2Pokemon, selectedAttack);
+            if (player2Pokemon.getHp() > 0) {
+                isPlayer1Turn = false; // Switches the turn to Player 2
             }
         } else {
-            turno(pokemonJogador2, pokemonJogador1, ataqueSelecionado);
-            if (pokemonJogador1.getHp() > 0) {
-                isJogador1Turno = true; // Alterna o turno para Jogador 1
+            turn(player2Pokemon, player1Pokemon, selectedAttack);
+            if (player1Pokemon.getHp() > 0) {
+                isPlayer1Turn = true; // Switches the turn to Player 1
             }
         }
 
-        if (pokemonJogador1.getHp() <= 0) {
-            System.out.println(pokemonJogador1.getNome() + " foi derrotado!");
-
+        if (player1Pokemon.getHp() <= 0) {
+            System.out.println(player1Pokemon.getName() + " has been defeated!");
         }
-        if (pokemonJogador2.getHp() <= 0) {
-            System.out.println(pokemonJogador2.getNome() + " foi derrotado!");
+        if (player2Pokemon.getHp() <= 0) {
+            System.out.println(player2Pokemon.getName() + " has been defeated!");
         }
     }
 
-    private void turno(Pokemon atacante, Pokemon defensor, Ataque ataque) {
-        System.out.println(atacante.getNome() + " usa " + ataque.getNome() + "!");
+    /**
+     * Executes the actions of a turn for the attacking and defending Pokemon.
+     *
+     * @param attacker The attacking Pokemon.
+     * @param defender The defending Pokemon.
+     * @param attack The attack used by the attacker.
+     */
+    private void turn(Pokemon attacker, Pokemon defender, Attack attack) {
+        System.out.println(attacker.getName() + " uses " + attack.getName() + "!");
 
-        if (random.nextInt(100) < ataque.getAcuracia()) {
-            atacante.atacar(defensor, ataque);
-            System.out.println(defensor.getNome() + " agora tem " + defensor.getHp() + " de HP.");
+        if (random.nextInt(100) < attack.getAccuracy()) {
+            attacker.attack(defender, attack);
+            System.out.println(defender.getName() + " now has " + defender.getHp() + " HP.");
         } else {
-            System.out.println(atacante.getNome() + " errou o ataque!");
+            System.out.println(attacker.getName() + " missed the attack!");
         }
     }
 }

@@ -6,8 +6,12 @@ import java.net.URL;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Represents a GUI for a Pokemon battle game.
+ * Allows players to select their Pokemon and conduct a battle.
+ */
 public class PokeBattleGUI extends JFrame {
-    private boolean isJogador1Turno;
+    private boolean isPlayer1Turn;
     private CardLayout cardLayout;
     private JPanel mainPanel;
 
@@ -33,7 +37,7 @@ public class PokeBattleGUI extends JFrame {
     private JButton selectedButtonPlayer1;
     private JButton selectedButtonPlayer2;
 
-    // JLabels para os GIFs
+    // JLabels for the GIFs
     private JLabel backgroundLabel;
     private JLabel topRightLabel;
     private JLabel bottomLeftLabel;
@@ -41,20 +45,23 @@ public class PokeBattleGUI extends JFrame {
     private Map<JButton, Pokemon> buttonPokemonMap = new HashMap<>();
     private Battle battle;
 
-    private List<Pokemon> todosPokemons = Arrays.asList(
-            new Fire("Charmander", 100, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
-            new Fire("Cyndaquil", 90, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
-            new Fire("Moltres", 110, 10, Arrays.asList(new Ataque("Chama", 10, 100), new Ataque("Lança-Chamas", 90, 85))),
-            new Water("Squirtle", 100, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
-            new Water("Mudkip", 90, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
-            new Water("Vaporeon", 120, 10, Arrays.asList(new Ataque("Jato de Água", 10, 100), new Ataque("Hidro Bomba", 90, 85))),
-            new Grass("Bulbasaur", 100, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100))),
-            new Grass("Chikorita", 90, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100))),
-            new Grass("Treecko", 110, 10, Arrays.asList(new Ataque("Folha Navalha", 10, 100), new Ataque("Chicote de Vinha", 45, 100)))
+    private List<Pokemon> allPokemons = Arrays.asList(
+            new Fire("Charmander", 100, 10, Arrays.asList(new Attack("Flame", 10, 100), new Attack("Flamethrower", 20, 80))),
+            new Fire("Cyndaquil", 100, 10, Arrays.asList(new Attack("Flame", 10, 100), new Attack("Flamethrower", 20, 80))),
+            new Fire("Moltres", 100, 10, Arrays.asList(new Attack("Flame", 10, 100), new Attack("Flamethrower", 20, 80))),
+            new Water("Squirtle", 100, 10, Arrays.asList(new Attack("Water Jet", 10, 100), new Attack("Hydro Pump", 20, 80))),
+            new Water("Mudkip", 100, 10, Arrays.asList(new Attack("Water Jet", 10, 100), new Attack("Hydro Pump", 20, 80))),
+            new Water("Vaporeon", 100, 10, Arrays.asList(new Attack("Water Jet", 10, 100), new Attack("Hydro Pump", 20, 80))),
+            new Grass("Bulbasaur", 100, 10, Arrays.asList(new Attack("Razor Leaf", 10, 100), new Attack("Vine Whip", 20, 80))),
+            new Grass("Chikorita", 100, 10, Arrays.asList(new Attack("Razor Leaf", 10, 100), new Attack("Vine Whip", 20, 80))),
+            new Grass("Treecko", 100, 10, Arrays.asList(new Attack("Razor Leaf", 10, 100), new Attack("Vine Whip", 20, 80)))
     );
 
+    /**
+     * Constructs the PokeBattleGUI, sets up the initial state and GUI components.
+     */
     public PokeBattleGUI() {
-        this.isJogador1Turno = true; // Jogador 1 começa
+        this.isPlayer1Turn = true; // Player 1 starts
 
         setTitle("PokeBattle");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,6 +82,9 @@ public class PokeBattleGUI extends JFrame {
         cardLayout.show(mainPanel, "Selection");
     }
 
+    /**
+     * Creates the selection panel where players select their Pokemon.
+     */
     private void createSelectionPanel() {
         selectionPanel = new JPanel(new BorderLayout());
 
@@ -88,8 +98,8 @@ public class PokeBattleGUI extends JFrame {
         player1Panel.add(new JLabel("Player 1"), BorderLayout.NORTH);
         JPanel player1ButtonsPanel = new JPanel(new GridLayout(3, 3));
         for (int i = 0; i < 9; i++) {
-            player1Buttons[i] = new JButton(this.todosPokemons.get(i).getNome());
-            buttonPokemonMap.put(player1Buttons[i], this.todosPokemons.get(i));
+            player1Buttons[i] = new JButton(this.allPokemons.get(i).getName());
+            buttonPokemonMap.put(player1Buttons[i], this.allPokemons.get(i));
             int finalI = i;
             player1Buttons[i].addActionListener(e -> {
                 player1Selected = true;
@@ -106,8 +116,8 @@ public class PokeBattleGUI extends JFrame {
         player2Panel.add(new JLabel("Player 2"), BorderLayout.NORTH);
         JPanel player2ButtonsPanel = new JPanel(new GridLayout(3, 3));
         for (int i = 0; i < 9; i++) {
-            player2Buttons[i] = new JButton(this.todosPokemons.get(i).getNome());
-            buttonPokemonMap.put(player2Buttons[i], this.todosPokemons.get(i));
+            player2Buttons[i] = new JButton(this.allPokemons.get(i).getName());
+            buttonPokemonMap.put(player2Buttons[i], this.allPokemons.get(i));
             int finalI = i;
             player2Buttons[i].addActionListener(e -> {
                 player2Selected = true;
@@ -152,6 +162,12 @@ public class PokeBattleGUI extends JFrame {
         });
     }
 
+    /**
+     * Highlights the selected button by changing its background color.
+     *
+     * @param buttons The array of buttons to search through.
+     * @param index   The index of the button to highlight.
+     */
     private void highlightSelectedButton(JButton[] buttons, int index) {
         for (int i = 0; i < buttons.length; i++) {
             if (i == index) {
@@ -162,25 +178,26 @@ public class PokeBattleGUI extends JFrame {
         }
     }
 
+    /**
+     * Creates the battle panel where the battle takes place.
+     */
     private void createBattlePanel() {
-        battlePanel = new JPanel(new BorderLayout()); // Layout absoluto para posicionar os JLabels
+        battlePanel = new JPanel(new BorderLayout()); // Absolute layout to position the JLabels
 
-        // Escolhe aleatoriamente um número entre 1 e 9 para o nome do arquivo
+        // Randomly choose a number between 1 and 9 for the file name
         Random random = new Random();
         int randomNumber = random.nextInt(9) + 1;
         String backgroundPath = "/gifs/background/" + randomNumber + ".png";
 
-        // Adicionando o JLabel para o GIF na parte superior direita
+        // Adding the JLabel for the GIF in the top right
         topRightLabel = createGifLabel("/gifs/moltres_frente.gif", 500, 200, 150, 150);
         battlePanel.add(topRightLabel);
 
-
-
-        // Adicionando o JLabel para o GIF na parte inferior esquerda
+        // Adding the JLabel for the GIF in the bottom left
         bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 125, 450, 150, 150);
         battlePanel.add(bottomLeftLabel);
 
-        // Adicionando o JLabel para o GIF de fundo
+        // Adding the JLabel for the background GIF
         backgroundLabel = createGifLabel(backgroundPath, 0, 0, 800, 600);
         battlePanel.add(backgroundLabel);
 
@@ -249,23 +266,36 @@ public class PokeBattleGUI extends JFrame {
         });
     }
 
+    /**
+     * Checks if both players are ready, and if so, starts the battle.
+     */
     private void checkReady() {
         if (player1Ready && player2Ready) {
-            iniciarBatalha();
+            startBattle();
             updateGifLabels();
             cardLayout.show(mainPanel, "Battle");
         }
     }
 
+    /**
+     * Updates the GIF labels based on the selected Pokemon of each player.
+     */
     private void updateGifLabels() {
-        Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
-        Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
+        Pokemon player1Pokemon = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
 
-        topRightLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador2.getNome() + "_frente.gif"), 100, 100));
-        bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + pokemonJogador1.getNome() + "_costa.gif"), 100, 100));
+        topRightLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + player2Pokemon.getName() + "_frente.gif"), 100, 100));
+        bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + player1Pokemon.getName() + "_costa.gif"), 100, 100));
     }
 
-    // Método auxiliar para redimensionar um ImageIcon
+    /**
+     * Resizes an ImageIcon to the specified width and height.
+     *
+     * @param icon  The ImageIcon to resize.
+     * @param width  The desired width.
+     * @param height The desired height.
+     * @return The resized ImageIcon.
+     */
     private ImageIcon resizeIcon(ImageIcon icon, int width, int height) {
         if (icon != null) {
             Image img = icon.getImage();
@@ -276,16 +306,21 @@ public class PokeBattleGUI extends JFrame {
         }
     }
 
+    /**
+     * Updates the left panel with buttons corresponding to the selected type.
+     *
+     * @param type The type of update ("Attack", "Items", or "Pokemon").
+     */
     private void updateLeftPanel(String type) {
-        Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
-        Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
+        Pokemon player1Pokemon = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
 
         leftPanel.removeAll();
         switch (type) {
             case "Attack" -> {
-                Pokemon currentPokemon = isJogador1Turno ? pokemonJogador1 : pokemonJogador2;
-                Pokemon opponentPokemon = isJogador1Turno ? pokemonJogador2 : pokemonJogador1;
-                for (int i = 0; i < currentPokemon.getAtaques().size(); i++) {
+                Pokemon currentPokemon = isPlayer1Turn ? player1Pokemon : player2Pokemon;
+                Pokemon opponentPokemon = isPlayer1Turn ? player2Pokemon : player1Pokemon;
+                for (int i = 0; i < currentPokemon.getAttacks().size(); i++) {
                     JButton attackButton = getAttackButton(currentPokemon, i, opponentPokemon);
                     leftPanel.add(attackButton);
                 }
@@ -305,11 +340,19 @@ public class PokeBattleGUI extends JFrame {
         leftPanel.repaint();
     }
 
-    private JButton getAttackButton(Pokemon currentPokemon, int i, Pokemon opponentPokemon) {
-        JButton attackButton = new JButton(currentPokemon.getAtaques().get(i).getNome());
-        Ataque ataque = currentPokemon.getAtaques().get(i);
+    /**
+     * Creates an attack button for the given Pokemon and attack index.
+     *
+     * @param currentPokemon   The Pokemon using the attack.
+     * @param index            The index of the attack in the Pokemon's attack list.
+     * @param opponentPokemon  The opposing Pokemon.
+     * @return The created attack button.
+     */
+    private JButton getAttackButton(Pokemon currentPokemon, int index, Pokemon opponentPokemon) {
+        JButton attackButton = new JButton(currentPokemon.getAttacks().get(index).getName());
+        Attack attack = currentPokemon.getAttacks().get(index);
         attackButton.addActionListener(e -> {
-            battle.realizarTurno(ataque);
+            battle.performTurn(attack);
             if (opponentPokemon.getHp() <= 0) {
                 int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "The battle has ended! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
@@ -318,12 +361,15 @@ public class PokeBattleGUI extends JFrame {
                     System.exit(0);
                 }
             } else {
-                isJogador1Turno = !isJogador1Turno;
+                isPlayer1Turn = !isPlayer1Turn;
             }
         });
         return attackButton;
     }
 
+    /**
+     * Resets the game state to allow players to start a new battle.
+     */
     private void resetGame() {
         player1Ready = false;
         player2Ready = false;
@@ -336,54 +382,71 @@ public class PokeBattleGUI extends JFrame {
         cardLayout.show(mainPanel, "Selection");
     }
 
-    // Método para criar um JLabel com um GIF específico em uma posição e tamanho
+    /**
+     * Creates a JLabel with a specific GIF, position, and size.
+     *
+     * @param path   The path to the GIF file.
+     * @param x      The x-coordinate of the JLabel.
+     * @param y      The y-coordinate of the JLabel.
+     * @param width  The width of the JLabel.
+     * @param height The height of the JLabel.
+     * @return The created JLabel.
+     */
     private JLabel createGifLabel(String path, int x, int y, int width, int height) {
         JLabel label = new JLabel();
         label.setBounds(x, y, width, height);
 
-        // Carrega o ícone do GIF
+        // Load the GIF icon
         ImageIcon gifIcon = createImageIcon(path);
         if (gifIcon != null) {
-            // Obtém o ícone como imagem e ajusta ao tamanho da label
+            // Get the icon as an image and resize it to the label size
             Image img = gifIcon.getImage();
             Image newImg = img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
             ImageIcon resizedIcon = new ImageIcon(newImg);
 
             label.setIcon(resizedIcon);
-            // Centraliza a imagem dentro da JLabel
+            // Center the image within the JLabel
             label.setHorizontalAlignment(JLabel.CENTER);
             label.setVerticalAlignment(JLabel.CENTER);
 
-            // Inicia a animação do GIF
+            // Start the GIF animation
             ((ImageIcon) label.getIcon()).setImageObserver(label);
         } else {
-            label.setText("GIF não encontrado!");
+            label.setText("GIF not found!");
         }
 
         return label;
     }
 
-    // Método auxiliar para carregar o GIF a partir do arquivo
+    /**
+     * Loads an ImageIcon from the specified file path.
+     *
+     * @param path The path to the GIF file.
+     * @return The loaded ImageIcon.
+     */
     private ImageIcon createImageIcon(String path) {
         URL imgUrl = getClass().getResource(path);
         if (imgUrl != null) {
             return new ImageIcon(imgUrl);
         } else {
-            System.err.println("Não foi possível carregar o arquivo de imagem: " + path);
+            System.err.println("Unable to load image file: " + path);
             return null;
         }
     }
 
-    private void iniciarBatalha() {
+    /**
+     * Starts the battle by initializing the Battle object with the selected Pokemon.
+     */
+    private void startBattle() {
         if (selectedButtonPlayer1 == null || selectedButtonPlayer2 == null) {
             // Handle case where a player has not selected a Pokémon
             return;
         }
 
-        Pokemon pokemonJogador1 = buttonPokemonMap.get(selectedButtonPlayer1);
-        Pokemon pokemonJogador2 = buttonPokemonMap.get(selectedButtonPlayer2);
+        Pokemon player1Pokemon = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
 
-        battle = new Battle(pokemonJogador1, pokemonJogador2);
-        battle.iniciar();
+        battle = new Battle(player1Pokemon, player2Pokemon);
+        battle.start();
     }
 }

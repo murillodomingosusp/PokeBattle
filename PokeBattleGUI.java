@@ -31,8 +31,6 @@ public class PokeBattleGUI extends JFrame {
     private JPanel leftPanel;
     private JPanel rightPanel;
     private JButton attackButton;
-    private JButton itemsButton;
-    private JButton pokemonButton;
     private JButton quitButton;
     private JButton selectedButtonPlayer1;
     private JButton selectedButtonPlayer2;
@@ -41,6 +39,8 @@ public class PokeBattleGUI extends JFrame {
     private JLabel backgroundLabel;
     private JLabel topRightLabel;
     private JLabel bottomLeftLabel;
+    private JLabel hpLabelPlayer1;
+    private JLabel hpLabelPlayer2;
 
     private Map<JButton, Pokemon> buttonPokemonMap = new HashMap<>();
     private Battle battle;
@@ -190,21 +190,21 @@ public class PokeBattleGUI extends JFrame {
         String backgroundPath = "/gifs/background/" + randomNumber + ".png";
 
         // Adding the JLabel for the GIF in the top right
-        topRightLabel = createGifLabel("/gifs/moltres_frente.gif", 500, 200, 150, 150);
+        topRightLabel = createGifLabel("/gifs/moltres_frente.gif", 500, 200, 100, 100);
         battlePanel.add(topRightLabel);
 
         // Adding the JLabel for the GIF in the bottom left
-        bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 125, 450, 150, 150);
+        bottomLeftLabel = createGifLabel("/gifs/bulbasaur_costa.gif", 200, 375, 100, 100);
         battlePanel.add(bottomLeftLabel);
 
         // Adding the JLabel for the background GIF
-        backgroundLabel = createGifLabel(backgroundPath, 0, 0, 800, 600);
+        backgroundLabel = createGifLabel(backgroundPath, 100, 35, 600, 450);
         battlePanel.add(backgroundLabel);
 
         JPanel titlePanel = new JPanel();
         titlePanel.add(new JLabel("PokeBattle"));
-        battlePanel.add(titlePanel, BorderLayout.NORTH);
 
+        battlePanel.add(titlePanel, BorderLayout.NORTH);
         centralPanel = new JPanel();
         battlePanel.add(centralPanel, BorderLayout.CENTER);
 
@@ -212,12 +212,8 @@ public class PokeBattleGUI extends JFrame {
         leftPanel = new JPanel(new GridLayout(2, 2));
         rightPanel = new JPanel(new GridLayout(2, 2));
         attackButton = new JButton("Attack");
-        itemsButton = new JButton("Items");
-        pokemonButton = new JButton("Pokemon");
         quitButton = new JButton("Quit");
         rightPanel.add(attackButton);
-        rightPanel.add(itemsButton);
-        rightPanel.add(pokemonButton);
         rightPanel.add(quitButton);
 
         bottomPanel.add(leftPanel, BorderLayout.WEST);
@@ -228,20 +224,6 @@ public class PokeBattleGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateLeftPanel("Attack");
-            }
-        });
-
-        itemsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateLeftPanel("Items");
-            }
-        });
-
-        pokemonButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateLeftPanel("Pokemon");
             }
         });
 
@@ -288,6 +270,32 @@ public class PokeBattleGUI extends JFrame {
         bottomLeftLabel.setIcon(resizeIcon(createImageIcon("/gifs/" + player1Pokemon.getName() + "_costa.gif"), 100, 100));
     }
 
+    private void updateHPLabels() {
+        Pokemon player1Pokemon = buttonPokemonMap.get(selectedButtonPlayer1);
+        Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
+
+        // Update or create HP labels
+        if (hpLabelPlayer1 == null) {
+            hpLabelPlayer1 = new JLabel("HP: " + player1Pokemon.getHp());
+            hpLabelPlayer1.setBounds(0, 0, 150, 30); // Position above the GIF
+            battlePanel.add(hpLabelPlayer1);
+        } else {
+            hpLabelPlayer1.setText("HP: " + player1Pokemon.getHp());
+        }
+
+        if (hpLabelPlayer2 == null) {
+            hpLabelPlayer2 = new JLabel("HP: " + player2Pokemon.getHp());
+            hpLabelPlayer2.setBounds(500, 150, 150, 30); // Position above the GIF
+            battlePanel.add(hpLabelPlayer2);
+        } else {
+            hpLabelPlayer2.setText("HP: " + player2Pokemon.getHp());
+        }
+
+        battlePanel.revalidate();
+        battlePanel.repaint();
+    }
+
+
     /**
      * Resizes an ImageIcon to the specified width and height.
      *
@@ -316,24 +324,13 @@ public class PokeBattleGUI extends JFrame {
         Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
 
         leftPanel.removeAll();
-        switch (type) {
-            case "Attack" -> {
-                Pokemon currentPokemon = isPlayer1Turn ? player1Pokemon : player2Pokemon;
-                Pokemon opponentPokemon = isPlayer1Turn ? player2Pokemon : player1Pokemon;
-                for (int i = 0; i < currentPokemon.getAttacks().size(); i++) {
-                    JButton attackButton = getAttackButton(currentPokemon, i, opponentPokemon);
-                    leftPanel.add(attackButton);
-                }
-            }
-            case "Items" -> {
-                for (int i = 0; i < 3; i++) {
-                    leftPanel.add(new JButton("Item " + (i + 1)));
-                }
-            }
-            case "Pokemon" -> {
-                for (int i = 0; i < 3; i++) {
-                    leftPanel.add(new JButton("Pokemon " + (i + 1)));
-                }
+        if (type.equals("Attack")) {
+            Pokemon currentPokemon = isPlayer1Turn ? player1Pokemon : player2Pokemon;
+            Pokemon opponentPokemon = isPlayer1Turn ? player2Pokemon : player1Pokemon;
+            for (int i = 0; i < currentPokemon.getAttacks().size(); i++) {
+                JButton attackButton = getAttackButton(currentPokemon, i, opponentPokemon);
+                updateHPLabels();
+                leftPanel.add(attackButton);
             }
         }
         leftPanel.revalidate();
@@ -363,6 +360,15 @@ public class PokeBattleGUI extends JFrame {
             } else {
                 isPlayer1Turn = !isPlayer1Turn;
             }
+
+            leftPanel.removeAll();
+            for (int i = 0; i < opponentPokemon.getAttacks().size(); i++) {
+                JButton attackOpponentButton = getAttackButton(opponentPokemon, i, currentPokemon);
+                updateHPLabels();
+                leftPanel.add(attackOpponentButton);
+            }
+            leftPanel.revalidate();
+            leftPanel.repaint();
         });
         return attackButton;
     }

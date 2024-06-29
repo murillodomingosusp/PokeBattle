@@ -5,6 +5,10 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
+
 
 /**
  * Represents a GUI for a Pokemon battle game.
@@ -182,6 +186,7 @@ public class PokeBattleGUI extends JFrame {
      * Creates the battle panel where the battle takes place.
      */
     private void createBattlePanel() {
+        Font buttonFont = new Font("Arial", Font.BOLD, 20);
         battlePanel = new JPanel(new BorderLayout()); // Absolute layout to position the JLabels
 
         // Randomly choose a number between 1 and 9 for the file name
@@ -201,6 +206,32 @@ public class PokeBattleGUI extends JFrame {
         backgroundLabel = createGifLabel(backgroundPath, 100, 35, 600, 450);
         battlePanel.add(backgroundLabel);
 
+        JPanel panel_hplayer1 = new JPanel(new BorderLayout());
+        JPanel panel_player1 = new JPanel();
+        panel_player1.setLayout(new BoxLayout(panel_player1, BoxLayout.Y_AXIS));
+        hpLabelPlayer1 = new JLabel("HP:");
+        hpLabelPlayer1.setForeground(Color.red);
+        hpLabelPlayer1.setFont(buttonFont);
+        JLabel player1 = new JLabel("Player 1");
+        player1.setFont(buttonFont);
+        panel_player1.add(player1);
+        panel_player1.add(hpLabelPlayer1);
+        panel_hplayer1.add(panel_player1, BorderLayout.SOUTH);
+        battlePanel.add(panel_hplayer1, BorderLayout.WEST);
+
+        JPanel panel_hplayer2 = new JPanel(new BorderLayout());
+        JPanel panel_player2 = new JPanel();
+        panel_player2.setLayout(new BoxLayout(panel_player2, BoxLayout.Y_AXIS));
+        hpLabelPlayer2 = new JLabel("HP:");
+        hpLabelPlayer2.setForeground(Color.red);
+        hpLabelPlayer2.setFont(buttonFont);
+        JLabel player2 = new JLabel("Player 2");
+        player2.setFont(buttonFont);
+        panel_player2.add(player2);
+        panel_player2.add(hpLabelPlayer2);
+        panel_hplayer2.add(panel_player2, BorderLayout.NORTH);
+        battlePanel.add(panel_hplayer2, BorderLayout.EAST);
+
         JPanel titlePanel = new JPanel();
         titlePanel.add(new JLabel("PokeBattle"));
 
@@ -216,7 +247,7 @@ public class PokeBattleGUI extends JFrame {
         rightPanel.add(attackButton);
         rightPanel.add(quitButton);
 
-        bottomPanel.add(leftPanel, BorderLayout.WEST);
+        bottomPanel.add(leftPanel, BorderLayout.CENTER);
         bottomPanel.add(rightPanel, BorderLayout.EAST);
         battlePanel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -277,7 +308,8 @@ public class PokeBattleGUI extends JFrame {
         // Update or create HP labels
         if (hpLabelPlayer1 == null) {
             hpLabelPlayer1 = new JLabel("HP: " + player1Pokemon.getHp());
-            hpLabelPlayer1.setBounds(0, 0, 150, 30); // Position above the GIF
+            hpLabelPlayer1.setBounds(0, 100, 150, 30); // Position above the GIF
+            hpLabelPlayer1.setVisible(true);
             battlePanel.add(hpLabelPlayer1);
         } else {
             hpLabelPlayer1.setText("HP: " + player1Pokemon.getHp());
@@ -285,7 +317,8 @@ public class PokeBattleGUI extends JFrame {
 
         if (hpLabelPlayer2 == null) {
             hpLabelPlayer2 = new JLabel("HP: " + player2Pokemon.getHp());
-            hpLabelPlayer2.setBounds(500, 150, 150, 30); // Position above the GIF
+            hpLabelPlayer2.setBounds(0, 500, 150, 30); // Position above the GIF
+            hpLabelPlayer2.setVisible(true);
             battlePanel.add(hpLabelPlayer2);
         } else {
             hpLabelPlayer2.setText("HP: " + player2Pokemon.getHp());
@@ -320,22 +353,32 @@ public class PokeBattleGUI extends JFrame {
      * @param type The type of update ("Attack", "Items", or "Pokemon").
      */
     private void updateLeftPanel(String type) {
+
         Pokemon player1Pokemon = buttonPokemonMap.get(selectedButtonPlayer1);
         Pokemon player2Pokemon = buttonPokemonMap.get(selectedButtonPlayer2);
 
         leftPanel.removeAll();
+        leftPanel.setLayout(new FlowLayout(FlowLayout.CENTER)); // Layout centralizado
+
         if (type.equals("Attack")) {
             Pokemon currentPokemon = isPlayer1Turn ? player1Pokemon : player2Pokemon;
             Pokemon opponentPokemon = isPlayer1Turn ? player2Pokemon : player1Pokemon;
             for (int i = 0; i < currentPokemon.getAttacks().size(); i++) {
                 JButton attackButton = getAttackButton(currentPokemon, i, opponentPokemon);
                 updateHPLabels();
+
+                // Configura o botão para ser centralizado dentro do FlowLayout
+                attackButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                attackButton.setAlignmentY(Component.CENTER_ALIGNMENT);
+
                 leftPanel.add(attackButton);
             }
         }
+
         leftPanel.revalidate();
         leftPanel.repaint();
     }
+
 
     /**
      * Creates an attack button for the given Pokemon and attack index.
@@ -346,12 +389,17 @@ public class PokeBattleGUI extends JFrame {
      * @return The created attack button.
      */
     private JButton getAttackButton(Pokemon currentPokemon, int index, Pokemon opponentPokemon) {
+        Font buttonFont = new Font("Arial", Font.BOLD, 20);
         JButton attackButton = new JButton(currentPokemon.getAttacks().get(index).getName());
+        attackButton.setBackground(Color.cyan);
+        attackButton.setFont(buttonFont);
         Attack attack = currentPokemon.getAttacks().get(index);
         attackButton.addActionListener(e -> {
+            playSound("C:\\Users\\muril\\IdeaProjects\\PokeBattle\\src\\sounds\\hit.wav");
             battle.performTurn(attack);
+            updateHPLabels();
             if (opponentPokemon.getHp() <= 0) {
-                int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "The battle has ended! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
+                int result = JOptionPane.showConfirmDialog(PokeBattleGUI.this, "The battle has ended, " + currentPokemon.getName() + " won! Play again?", "Game Over", JOptionPane.YES_NO_OPTION);
                 if (result == JOptionPane.YES_OPTION) {
                     resetGame();
                 } else {
@@ -364,8 +412,9 @@ public class PokeBattleGUI extends JFrame {
             leftPanel.removeAll();
             for (int i = 0; i < opponentPokemon.getAttacks().size(); i++) {
                 JButton attackOpponentButton = getAttackButton(opponentPokemon, i, currentPokemon);
-                updateHPLabels();
-                leftPanel.add(attackOpponentButton);
+                attackOpponentButton.setBackground(Color.cyan);
+                attackOpponentButton.setFont(buttonFont);
+                leftPanel.add(attackOpponentButton, BorderLayout.CENTER);
             }
             leftPanel.revalidate();
             leftPanel.repaint();
@@ -455,4 +504,29 @@ public class PokeBattleGUI extends JFrame {
         battle = new Battle(player1Pokemon, player2Pokemon);
         battle.start();
     }
+
+    public static void playBackgroundMusic(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // Play in loop
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void playSound(String filePath) {
+        try {
+            File audioFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

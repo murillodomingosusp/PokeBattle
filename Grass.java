@@ -84,7 +84,6 @@ public class Grass implements Pokemon {
     public void attack(Pokemon target, Attack attack) {
         int damage = calculateDamage(this, target, attack);
         target.setHp(target.getHp() - damage);
-        System.out.println(this.getName() + " uses " + attack.getName() + " on " + target.getName() + " causing " + damage + " damage.");
     }
 
     /**

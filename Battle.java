@@ -1,4 +1,5 @@
 import java.util.Random;
+import javax.swing.JOptionPane;
 
 /**
  * Represents a battle between two Pokemon. Manages the turn-based combat
@@ -27,8 +28,6 @@ public class Battle {
      * Starts the battle and announces the participating Pokemon.
      */
     public void start() {
-        System.out.println("The battle has begun!");
-        System.out.println("\nBattle: " + player1Pokemon.getName() + " vs " + player2Pokemon.getName());
     }
 
     /**
@@ -48,13 +47,6 @@ public class Battle {
                 isPlayer1Turn = true; // Switches the turn to Player 1
             }
         }
-
-        if (player1Pokemon.getHp() <= 0) {
-            System.out.println(player1Pokemon.getName() + " has been defeated!");
-        }
-        if (player2Pokemon.getHp() <= 0) {
-            System.out.println(player2Pokemon.getName() + " has been defeated!");
-        }
     }
 
     /**
@@ -65,13 +57,11 @@ public class Battle {
      * @param attack The attack used by the attacker.
      */
     private void turn(Pokemon attacker, Pokemon defender, Attack attack) {
-        System.out.println(attacker.getName() + " uses " + attack.getName() + "!");
 
         if (random.nextInt(100) < attack.getAccuracy()) {
             attacker.attack(defender, attack);
-            System.out.println(defender.getName() + " now has " + defender.getHp() + " HP.");
         } else {
-            System.out.println(attacker.getName() + " missed the attack!");
+            JOptionPane.showMessageDialog(null, attacker.getName() + " missed the attack!", "Attack Missed", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 }
